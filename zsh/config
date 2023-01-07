@@ -1,0 +1,45 @@
+setopt promptsubst
+
+# completion
+autoload -U compinit
+compinit -u
+
+# makes color constants available
+autoload -U colors
+colors
+
+# enable colored output from ls, etc
+export CLICOLOR=1
+
+# history settings
+setopt hist_ignore_all_dups inc_append_history
+HISTFILE=~/.zhistory
+HISTSIZE=4096
+SAVEHIST=4096
+
+# awesome cd movements from zshkit
+# setopt autocd autopushd pushdminus pushdsilent pushdtohome cdablevars
+# DIRSTACKSIZE=5
+
+# Enable extended globbing
+# setopt extendedglob
+
+# Allow [ or ] whereever you want
+# unsetopt nomatch
+
+# Zsh syntax highlight
+TERM=screen-256color
+
+# Local config
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# Your secrets env var
+[[ -f ~/.secrets ]] && source ~/.secrets
+
+setopt interactivecomments
+
+#
+# Setup completions for asdf
+fpath=(${ASDF_DIR}/completions $fpath) # append completions to fpath
+# initialise completions with ZSH's compinit
+autoload -Uz compinit && compinit
