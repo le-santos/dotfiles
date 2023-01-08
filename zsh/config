@@ -1,9 +1,5 @@
 setopt promptsubst
 
-# completion
-autoload -U compinit
-compinit -u
-
 # makes color constants available
 autoload -U colors
 colors
@@ -31,15 +27,18 @@ SAVEHIST=4096
 TERM=screen-256color
 
 # Local config
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+# [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 # Your secrets env var
-[[ -f ~/.secrets ]] && source ~/.secrets
+# [[ -f ~/.secrets ]] && source ~/.secrets
 
 setopt interactivecomments
 
-#
-# Setup completions for asdf
+# Config for asdf (version manager for ruby and node)
+. $HOME/.asdf/asdf.sh
+
+# Completions for asdf
 fpath=(${ASDF_DIR}/completions $fpath) # append completions to fpath
+
 # initialise completions with ZSH's compinit
-autoload -Uz compinit && compinit
+autoload -Uz compinit && compinit -u

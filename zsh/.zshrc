@@ -5,5 +5,8 @@ source $HOME/.dotfiles/zsh/config
 source $HOME/.dotfiles/zsh/aliases
 
 # Load: Themes
-# Peepcode theme to make your terminal simple and beautiful
-source $HOME/.dotfiles/zsh/themes/peepcode_theme
+# Simple theme
+source $HOME/.dotfiles/zsh/themes/custom_theme
+
+# Load zsh extensions
+source $HOME/.dotfiles/zsh/extensions

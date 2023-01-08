@@ -1,0 +1,92 @@
+#!/usr/bin/env zsh
+# ------------------------------------------------------------------------------
+# Prompt for the Zsh shell:
+#   * One line.
+#   * VCS info on the right prompt.
+#   * Only shows the path on the left prompt by default.
+#   * Crops the path to a defined length and only shows the path relative to
+#     the current VCS repository root.
+#   * Wears a different color whether the last command succeeded/failed.
+#   * Shows user@hostname if connected through SSH.
+#   * Shows if logged in as root or not.
+# ------------------------------------------------------------------------------
+
+# Customizable parameters.
+PROMPT_PATH_MAX_LENGTH=30
+PROMPT_DEFAULT_END=❯
+PROMPT_ROOT_END=❯❯❯
+PROMPT_SUCCESS_COLOR=$FG[071]
+PROMPT_FAILURE_COLOR=$FG[124]
+PROMPT_VCS_INFO_COLOR=$FG[242]
+
+# Set required options.
+setopt promptsubst
+
+# Load required modules.
+autoload -U add-zsh-hook
+autoload -Uz vcs_info
+
+# Add hook for calling vcs_info before each command.
+add-zsh-hook precmd vcs_info
+
+# Set vcs_info parameters.
+zstyle ':vcs_info:*' enable hg bzr git
+zstyle ':vcs_info:*:*' check-for-changes true # Can be slow on big repos.
+zstyle ':vcs_info:*:*' unstagedstr '!'
+zstyle ':vcs_info:*:*' stagedstr '+'
+zstyle ':vcs_info:*:*' actionformats "%S" "%r/%s/%b %u%c (%a)"
+zstyle ':vcs_info:*:*' formats "%S" "%r/%s/%b %u%c"
+zstyle ':vcs_info:*:*' nvcsformats "%~" ""
+
+########################################
+# Right PROMPT functions setup:
+git_repo_path() {
+  git rev-parse --git-dir 2>/dev/null
+}
+
+git_commit_id() {
+  git rev-parse --short HEAD 2>/dev/null
+}
+
+git_mode() {
+  if [[ -e "$repo_path/BISECT_LOG" ]]; then
+    echo "+bisect"
+  elif [[ -e "$repo_path/MERGE_HEAD" ]]; then
+    echo "+merge"
+  elif [[ -e "$repo_path/rebase" || -e "$repo_path/rebase-apply" || -e "$repo_path/rebase-merge" || -e "$repo_path/../.dotest" ]]; then
+    echo "+rebase"
+  fi
+}
+
+git_dirty() {
+  if [[ "$repo_path" != '.' && `git ls-files -m` != "" ]]; then
+    echo " %{$fg_bold[yellow]%}✗%{$reset_color%}"
+  fi
+}
+
+function current_branch() {
+  local ref
+  ref=$(git symbolic-ref --quiet HEAD 2> /dev/null)
+  local ret=$?
+  if [[ $ret != 0 ]]; then
+    [[ $ret == 128 ]] && return  # no git repo.
+    ref=$(git rev-parse --short HEAD 2> /dev/null) || return
+  fi
+  echo ${ref#refs/heads/}
+}
+
+git_prompt() {
+  local cb=$(current_branch)
+  if [ -n "$cb" ]; then
+    local repo_path=$(git_repo_path)
+    echo " %{$fg_bold[yellow]%}$cb %{$fg[white]%}$(git_commit_id)%{$reset_color%}$(git_mode)$(git_dirty)"
+  fi
+}
+
+#################
+# Define prompts.
+PROMPT="
+%$PROMPT_PATH_MAX_LENGTH<..<"'${vcs_info_msg_0_%%.}'"%<<%(!.$PROMPT_ROOT_END.$PROMPT_DEFAULT_END)%{$FX[no-bold]%}%{$FX[reset]%}
+%(0?.%{$PROMPT_SUCCESS_COLOR%}.%{$PROMPT_FAILURE_COLOR%})${SSH_TTY:+[%n@%m]}%{$FX[bold]%}"
+
+RPROMPT='%{$fg[white]%} $(ruby --version | grep -o "ruby [0-9]\.[0-9]\.[0-9]")$(git_prompt)%{$reset_color%}'
