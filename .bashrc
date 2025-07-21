@@ -118,6 +118,8 @@ fi
 
 # Set asdf as a version manager for ruby and node
 # set completions for asdf
-. $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash
+# . $HOME/.asdf/asdf.sh
+# . $HOME/.asdf/completions/asdf.bash
 
+. "$HOME/.cargo/env"
+export PATH="$HOME/.kerl/bin:$PATH"

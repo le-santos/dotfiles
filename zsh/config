@@ -34,8 +34,17 @@ TERM=screen-256color
 
 setopt interactivecomments
 
-# Config for asdf (version manager for ruby and node)
-. $HOME/.asdf/asdf.sh
+# Add shims directory to path
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+
+# Load Rust config
+. "$HOME/.cargo/env"
+
+# enable Ruby YJIT
+export RUBY_YJIT_ENABLE=1
+
+# kerl - Erlang build tool
+export PATH="$HOME/.kerl/bin:$PATH"
 
 # Completions for asdf
 fpath=(${ASDF_DIR}/completions $fpath) # append completions to fpath
